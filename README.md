@@ -122,6 +122,7 @@ npm run storybook
 Run frontend browser end-to-end tests with:
 
 ```sh
+npx playwright install chromium
 npm run test:e2e --workspace frontend
 ```
 

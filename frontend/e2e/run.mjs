@@ -3,7 +3,6 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { createConnection, createServer } from 'node:net'
-import { homedir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 
@@ -33,12 +32,6 @@ const viteCli = resolve(
 const playwrightCli = resolve(
   dirname(require.resolve('@playwright/test/package.json')),
   'cli.js',
-)
-
-process.env.PLAYWRIGHT_BROWSERS_PATH ??= resolve(
-  homedir(),
-  '.codex-tools',
-  'playwright-browsers',
 )
 
 function resolveJavaHome() {
@@ -73,28 +66,6 @@ function resolveJavaHome() {
       existsSync(resolve(registeredJavaHome, 'bin', 'java.exe'))
     )
       return registeredJavaHome
-
-    const codexJdkRoot = resolve(homedir(), '.codex-tools', 'temurin-25')
-    if (existsSync(resolve(codexJdkRoot, 'bin', 'java.exe')))
-      return codexJdkRoot
-    if (existsSync(codexJdkRoot)) {
-      const installedJdk = spawnSync(
-        'powershell.exe',
-        [
-          '-NoProfile',
-          '-Command',
-          `Get-ChildItem -LiteralPath '${codexJdkRoot.replaceAll("'", "''")}' -Directory | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty FullName`,
-        ],
-        { encoding: 'utf8', windowsHide: true },
-      )
-      const discoveredJavaHome =
-        installedJdk.status === 0 ? installedJdk.stdout.trim() : ''
-      if (
-        discoveredJavaHome &&
-        existsSync(resolve(discoveredJavaHome, 'bin', 'java.exe'))
-      )
-        return discoveredJavaHome
-    }
   }
   return undefined
 }
@@ -296,7 +267,7 @@ async function main() {
   const javaHome = resolveJavaHome()
   if (!javaHome && process.platform === 'win32') {
     throw new Error(
-      'Could not find a JDK. Set JAVA_HOME or install Temurin under ~/.codex-tools/temurin-25.',
+      'Could not find a JDK. Set JAVA_HOME to a JDK 25 installation.',
     )
   }
   if (javaHome) process.env.JAVA_HOME = javaHome
