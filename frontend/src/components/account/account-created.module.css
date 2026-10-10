@@ -1,0 +1,25 @@
+.content.content {
+  gap: 24px;
+}
+.focusTarget:focus {
+  outline: none;
+}
+.primaryLink {
+  align-items: center;
+  background: #3157c8;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  font-weight: 600;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 18px;
+  text-decoration: none;
+}
+.primaryLink[data-hovered] {
+  background: #2747a8;
+}
+.primaryLink[data-focus-visible] {
+  outline: 3px solid #172b4d;
+  outline-offset: 2px;
+}

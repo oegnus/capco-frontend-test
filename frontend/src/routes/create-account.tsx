@@ -1,9 +1,14 @@
 import { useNavigate } from 'react-router'
 
-import { CreateAccountForm } from './-create-account-form'
-import { parseAccountAccessSearch } from './-return-target'
+import { CreateAccountForm } from '../components/account/create-account-form'
+
+import { accountAccessHref, parseAccountAccessSearch } from './-return-target'
 
 import type { Route } from './+types/create-account'
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: 'Create your account - KYC' }]
+}
 
 export function clientLoader({ request }: Route.ClientLoaderArgs) {
   const search = Object.fromEntries(new URL(request.url).searchParams)
@@ -19,7 +24,7 @@ export default function CreateAccountRoute({
       onNavigate={(href) => {
         void navigate(href)
       }}
-      returnTo={loaderData.returnTo}
+      signInHref={accountAccessHref('/sign-in', loaderData.returnTo)}
     />
   )
 }

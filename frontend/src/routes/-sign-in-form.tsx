@@ -10,8 +10,9 @@ import {
 } from '@kyc/ui'
 import { useEffect, useRef, useState } from 'react'
 
+import styles from '../components/account/account-access.module.css'
+
 import { accountAccessHref, isSafeJourneyPath } from './-return-target'
-import styles from './account-access.module.css'
 
 export interface SignInFormProps {
   onNavigate?: (href: string) => void
