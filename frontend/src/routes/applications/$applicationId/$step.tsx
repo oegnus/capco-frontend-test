@@ -5,8 +5,8 @@ import {
   type ApplicationStep,
 } from '../../../api/applicant-applications'
 import { JsonApiRequestError } from '../../../api/json-api'
-import { ApplicationReviewForm } from '../../../components/application/application-review-form'
-import { ApplicationStepForm } from '../../../components/application/application-step-form'
+import { ApplicationReviewForm } from '../../../components/application-review-form/application-review-form'
+import { ApplicationStepForm } from '../../../components/application-step-form/application-step-form'
 
 import type { Route } from './+types/$step'
 

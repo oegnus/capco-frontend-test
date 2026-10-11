@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { applicantJourneyFixtures } from '../../components/application/applicant-journey-presentation'
+import { applicantJourneyFixtures } from '../../components/applicant-journey-presentation/applicant-journey-presentation'
 
 import { journeyPresentation } from './current'
 

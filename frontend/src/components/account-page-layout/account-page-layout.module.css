@@ -13,15 +13,6 @@
 .cardContent {
   padding: 24px;
 }
-.form.form {
-  gap: 24px;
-}
-.submit {
-  min-height: 48px;
-}
-.footer {
-  text-align: center;
-}
 
 @media (min-width: 600px) {
   .page {

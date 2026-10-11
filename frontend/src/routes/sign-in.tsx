@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 
-import { SignInForm } from '../components/account/sign-in-form'
+import { SignInForm } from '../components/sign-in-form/sign-in-form'
 
 import {
   accountAccessHref,

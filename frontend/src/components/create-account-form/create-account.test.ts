@@ -7,7 +7,7 @@ import {
   rateLimitMessage,
   toRegistrationErrors,
   validateRegistration,
-} from './registration'
+} from './create-account'
 
 const valid = {
   email: 'ada@example.com',

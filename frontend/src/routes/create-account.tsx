@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 
-import { CreateAccountForm } from '../components/account/create-account-form'
+import { CreateAccountForm } from '../components/create-account-form/create-account-form'
 
 import { accountAccessHref, parseAccountAccessSearch } from './-return-target'
 import { redirectIfSignedIn } from './-session-guard'

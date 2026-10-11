@@ -15,7 +15,7 @@ import {
   ApplicantJourneyPresentation,
   applicantJourneyFixtures,
   type ApplicantJourneyPresentationFixture,
-} from '../../components/application/applicant-journey-presentation'
+} from '../../components/applicant-journey-presentation/applicant-journey-presentation'
 
 import type { Route } from './+types/current'
 

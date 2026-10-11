@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router'
 
-import { LogOutLink } from '../components/account/log-out-link'
+import { LogOutLink } from '../components/log-out-link/log-out-link'
 
 import { requireSignedIn } from './-session-guard'
 import styles from './applications.module.css'

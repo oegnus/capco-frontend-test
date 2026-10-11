@@ -1,6 +1,8 @@
 import { JsonApiRequestError } from '../../api/json-api'
-
-import { rateLimitMessage, validateEmail } from './registration'
+import {
+  rateLimitMessage,
+  validateEmail,
+} from '../create-account-form/create-account'
 
 export interface SignInValues {
   email: string

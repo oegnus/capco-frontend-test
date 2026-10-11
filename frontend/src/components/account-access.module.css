@@ -1,0 +1,9 @@
+.form.form {
+  gap: 24px;
+}
+.submit {
+  min-height: 48px;
+}
+.footer {
+  text-align: center;
+}
