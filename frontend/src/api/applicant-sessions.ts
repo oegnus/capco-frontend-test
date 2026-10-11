@@ -5,6 +5,7 @@ import {
   getJsonApi,
   JsonApiRequestError,
   postJsonApi,
+  readJsonApi,
 } from './json-api'
 
 export interface ApplicantSessionCredentials {
@@ -35,20 +36,8 @@ export async function createApplicantSession({
   const response = await postJsonApi('/api/v1/applicant-sessions', {
     data: { type: 'applicant-sessions', attributes: { email, password } },
   })
-  let body: unknown
-  try {
-    body = await response.json()
-  } catch {
-    body = undefined
-  }
-  const parsed = sessionDocumentSchema.safeParse(body)
-  if (!parsed.success) {
-    throw new JsonApiRequestError({
-      kind: 'unexpected',
-      status: response.status,
-    })
-  }
-  return { href: parsed.data.data.attributes.href }
+  const session = await readJsonApi(response, sessionDocumentSchema)
+  return { href: session.data.attributes.href }
 }
 
 /** Logs the Applicant out by revoking the session behind the cookie. */

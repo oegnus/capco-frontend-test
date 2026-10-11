@@ -7,7 +7,7 @@ import {
   ApplicantJourneyPresentation,
   applicantJourneyFixtures,
   type ApplicantJourneyPresentationFixture,
-} from './-applicant-journey-presentation'
+} from './applicant-journey-presentation'
 
 expect.extend(toHaveNoViolations)
 

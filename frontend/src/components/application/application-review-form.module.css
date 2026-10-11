@@ -1,0 +1,15 @@
+.reviewPage {
+  background: #f5f7fa;
+  min-height: 100dvh;
+  padding: 16px;
+}
+.reviewCard {
+  margin: auto;
+  max-width: 720px;
+}
+
+@media (min-width: 768px) {
+  .reviewPage {
+    padding: 48px;
+  }
+}

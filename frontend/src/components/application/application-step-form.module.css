@@ -3,15 +3,6 @@
   min-height: 100dvh;
   padding: 20px;
 }
-.reviewPage {
-  background: #f5f7fa;
-  min-height: 100dvh;
-  padding: 16px;
-}
-.reviewCard {
-  margin: auto;
-  max-width: 720px;
-}
 .stepContent {
   margin: 0 auto;
   max-width: 700px;
@@ -21,14 +12,12 @@
 }
 .formActions.formActions {
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
 }
 
 @media (min-width: 768px) {
   .page {
     padding: 56px;
-  }
-  .reviewPage {
-    padding: 48px;
   }
 }

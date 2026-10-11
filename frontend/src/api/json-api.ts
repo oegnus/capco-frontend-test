@@ -45,17 +45,54 @@ export function postJsonApi(url: string, payload: unknown): Promise<Response> {
   return sendJsonApi('POST', url, payload)
 }
 
+export function patchJsonApi(url: string, payload: unknown): Promise<Response> {
+  return sendJsonApi('PATCH', url, payload)
+}
+
+/** Posts a multipart body; the browser sets its Content-Type and boundary. */
+export function postMultipartJsonApi(
+  url: string,
+  formData: FormData,
+): Promise<Response> {
+  return sendJsonApi('POST', url, formData)
+}
+
 export function deleteJsonApi(url: string): Promise<Response> {
   return sendJsonApi('DELETE', url)
 }
 
+/**
+ * Parses a successful response body with `schema`. A body that does not match
+ * the contract is reported as an unexpected response.
+ */
+export async function readJsonApi<T>(
+  response: Response,
+  schema: z.ZodType<T>,
+): Promise<T> {
+  let body: unknown
+  try {
+    body = await response.json()
+  } catch {
+    body = undefined
+  }
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    throw new JsonApiRequestError({
+      kind: 'unexpected',
+      status: response.status,
+    })
+  }
+  return parsed.data
+}
+
 async function sendJsonApi(
-  method: 'GET' | 'POST' | 'DELETE',
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   url: string,
   payload?: unknown,
 ): Promise<Response> {
+  const isMultipart = payload instanceof FormData
   const headers: Record<string, string> = { Accept: JSON_API_MEDIA_TYPE }
-  if (payload !== undefined) {
+  if (payload !== undefined && !isMultipart) {
     headers['Content-Type'] = JSON_API_MEDIA_TYPE
   }
   // The API requires the CSRF token from sign-in on authenticated writes.
@@ -63,13 +100,19 @@ async function sendJsonApi(
   if (csrfToken) {
     headers['X-XSRF-TOKEN'] = csrfToken
   }
+  let body: BodyInit | undefined
+  if (isMultipart) {
+    body = payload
+  } else if (payload !== undefined) {
+    body = JSON.stringify(payload)
+  }
   let response: Response
   try {
     response = await fetch(url, {
       method,
       credentials: 'same-origin',
       headers,
-      body: payload === undefined ? undefined : JSON.stringify(payload),
+      body,
     })
   } catch {
     throw new JsonApiRequestError({ kind: 'network' })
