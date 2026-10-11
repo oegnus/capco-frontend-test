@@ -2,7 +2,14 @@ import { Outlet, useNavigate } from 'react-router'
 
 import { LogOutLink } from '../components/account/log-out-link'
 
+import { requireSignedIn } from './-session-guard'
 import styles from './applications.module.css'
+
+/** Every applicant page needs a session; this layout guards them all. */
+export async function clientLoader() {
+  await requireSignedIn()
+  return null
+}
 
 export default function ApplicationsLayout() {
   const navigate = useNavigate()

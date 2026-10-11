@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-import { deleteJsonApi, JsonApiRequestError, postJsonApi } from './json-api'
+import {
+  deleteJsonApi,
+  getJsonApi,
+  JsonApiRequestError,
+  postJsonApi,
+} from './json-api'
 
 export interface ApplicantSessionCredentials {
   email: string
@@ -58,6 +63,30 @@ export async function deleteCurrentApplicantSession(): Promise<void> {
       error.failure.status === 401
     ) {
       return
+    }
+    throw error
+  }
+}
+
+export type ApplicantSessionStatus = 'signed-in' | 'signed-out'
+
+/**
+ * Reports whether the browser holds a valid Applicant session. The API has no
+ * session read endpoint and the cookie is HttpOnly, so this asks for the
+ * current application: any success (200 draft, 204 none) means signed in and
+ * 401 means signed out. Other failures are rethrown as unknown.
+ */
+export async function getApplicantSessionStatus(): Promise<ApplicantSessionStatus> {
+  try {
+    await getJsonApi('/api/v1/applicant-applications/current')
+    return 'signed-in'
+  } catch (error) {
+    if (
+      error instanceof JsonApiRequestError &&
+      error.failure.kind === 'http' &&
+      error.failure.status === 401
+    ) {
+      return 'signed-out'
     }
     throw error
   }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { CreateAccountForm } from '../components/account/create-account-form'
 
 import { accountAccessHref, parseAccountAccessSearch } from './-return-target'
+import { redirectIfSignedIn } from './-session-guard'
 
 import type { Route } from './+types/create-account'
 
@@ -10,7 +11,8 @@ export function meta(): Route.MetaDescriptors {
   return [{ title: 'Create your account - KYC' }]
 }
 
-export function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  await redirectIfSignedIn()
   const search = Object.fromEntries(new URL(request.url).searchParams)
   return parseAccountAccessSearch(search)
 }

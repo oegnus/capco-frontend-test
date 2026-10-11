@@ -37,6 +37,10 @@ export class JsonApiRequestError extends Error {
   }
 }
 
+export function getJsonApi(url: string): Promise<Response> {
+  return sendJsonApi('GET', url)
+}
+
 export function postJsonApi(url: string, payload: unknown): Promise<Response> {
   return sendJsonApi('POST', url, payload)
 }
@@ -46,7 +50,7 @@ export function deleteJsonApi(url: string): Promise<Response> {
 }
 
 async function sendJsonApi(
-  method: 'POST' | 'DELETE',
+  method: 'GET' | 'POST' | 'DELETE',
   url: string,
   payload?: unknown,
 ): Promise<Response> {
@@ -55,7 +59,7 @@ async function sendJsonApi(
     headers['Content-Type'] = JSON_API_MEDIA_TYPE
   }
   // The API requires the CSRF token from sign-in on authenticated writes.
-  const csrfToken = readCookie('XSRF-TOKEN')
+  const csrfToken = method === 'GET' ? undefined : readCookie('XSRF-TOKEN')
   if (csrfToken) {
     headers['X-XSRF-TOKEN'] = csrfToken
   }

@@ -7,6 +7,7 @@ import {
   journeyDestination,
   parseAccountAccessSearch,
 } from './-return-target'
+import { redirectIfSignedIn } from './-session-guard'
 
 import type { Route } from './+types/sign-in'
 
@@ -14,7 +15,8 @@ export function meta(): Route.MetaDescriptors {
   return [{ title: 'Sign in - KYC' }]
 }
 
-export function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  await redirectIfSignedIn()
   const search = Object.fromEntries(new URL(request.url).searchParams)
   return parseAccountAccessSearch(search)
 }
