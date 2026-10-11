@@ -31,15 +31,24 @@ export function meetsPasswordPolicy(password: string): boolean {
   )
 }
 
+/** Validates an already trimmed email address against the API's rule. */
+export function validateEmail(email: string): string | undefined {
+  if (email === '') {
+    return 'Enter your email address.'
+  }
+  if (!emailPattern.test(email)) {
+    return 'Enter an email address in the format name@example.com.'
+  }
+  return undefined
+}
+
 export function validateRegistration(
   values: RegistrationValues,
 ): RegistrationFieldErrors {
   const errors: RegistrationFieldErrors = {}
-  const email = values.email.trim()
-  if (email === '') {
-    errors.email = 'Enter your email address.'
-  } else if (!emailPattern.test(email)) {
-    errors.email = 'Enter an email address in the format name@example.com.'
+  const emailError = validateEmail(values.email.trim())
+  if (emailError) {
+    errors.email = emailError
   }
   if (values.password.trim() === '') {
     errors.password = 'Enter a password.'

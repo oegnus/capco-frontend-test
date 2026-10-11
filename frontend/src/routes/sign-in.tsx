@@ -1,9 +1,18 @@
 import { useNavigate } from 'react-router'
 
-import { parseAccountAccessSearch } from './-return-target'
-import { SignInForm } from './-sign-in-form'
+import { SignInForm } from '../components/account/sign-in-form'
+
+import {
+  accountAccessHref,
+  journeyDestination,
+  parseAccountAccessSearch,
+} from './-return-target'
 
 import type { Route } from './+types/sign-in'
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: 'Sign in - KYC' }]
+}
 
 export function clientLoader({ request }: Route.ClientLoaderArgs) {
   const search = Object.fromEntries(new URL(request.url).searchParams)
@@ -14,13 +23,17 @@ export default function SignInRoute({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate()
   return (
     <SignInForm
+      createAccountHref={accountAccessHref(
+        '/create-account',
+        loaderData.returnTo,
+      )}
       onNavigate={(href) => {
         void navigate(href)
       }}
-      onSuccess={(href) => {
-        void navigate(href)
+      onSignedIn={(href) => {
+        // Replace so Back does not return to the sign-in form.
+        void navigate(journeyDestination(href), { replace: true })
       }}
-      returnTo={loaderData.returnTo}
     />
   )
 }

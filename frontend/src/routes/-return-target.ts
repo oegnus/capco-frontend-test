@@ -16,6 +16,11 @@ export function isSafeJourneyPath(path: string): boolean {
   return path.startsWith('/applications/') && !path.startsWith('//')
 }
 
+/** Uses the API's journey URL only if it is a local applicant journey path. */
+export function journeyDestination(href: string): string {
+  return isSafeJourneyPath(href) ? href : '/applications/current'
+}
+
 export function accountAccessHref(
   path: '/sign-in' | '/create-account',
   returnTo?: string,

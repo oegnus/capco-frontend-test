@@ -37,20 +37,35 @@ export class JsonApiRequestError extends Error {
   }
 }
 
-export async function postJsonApi(
+export function postJsonApi(url: string, payload: unknown): Promise<Response> {
+  return sendJsonApi('POST', url, payload)
+}
+
+export function deleteJsonApi(url: string): Promise<Response> {
+  return sendJsonApi('DELETE', url)
+}
+
+async function sendJsonApi(
+  method: 'POST' | 'DELETE',
   url: string,
-  document: unknown,
+  payload?: unknown,
 ): Promise<Response> {
+  const headers: Record<string, string> = { Accept: JSON_API_MEDIA_TYPE }
+  if (payload !== undefined) {
+    headers['Content-Type'] = JSON_API_MEDIA_TYPE
+  }
+  // The API requires the CSRF token from sign-in on authenticated writes.
+  const csrfToken = readCookie('XSRF-TOKEN')
+  if (csrfToken) {
+    headers['X-XSRF-TOKEN'] = csrfToken
+  }
   let response: Response
   try {
     response = await fetch(url, {
-      method: 'POST',
+      method,
       credentials: 'same-origin',
-      headers: {
-        Accept: JSON_API_MEDIA_TYPE,
-        'Content-Type': JSON_API_MEDIA_TYPE,
-      },
-      body: JSON.stringify(document),
+      headers,
+      body: payload === undefined ? undefined : JSON.stringify(payload),
     })
   } catch {
     throw new JsonApiRequestError({ kind: 'network' })
@@ -59,6 +74,16 @@ export async function postJsonApi(
     return response
   }
   throw new JsonApiRequestError(await readFailure(response))
+}
+
+function readCookie(name: string): string | undefined {
+  for (const cookie of document.cookie.split(';')) {
+    const [key, ...value] = cookie.trim().split('=')
+    if (key === name) {
+      return decodeURIComponent(value.join('='))
+    }
+  }
+  return undefined
 }
 
 async function readFailure(response: Response): Promise<JsonApiFailure> {

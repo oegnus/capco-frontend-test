@@ -1,0 +1,6 @@
+.bar {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px;
+}
