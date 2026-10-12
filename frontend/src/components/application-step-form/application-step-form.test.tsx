@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 
 import { server } from '../../test/server'
@@ -533,5 +533,39 @@ describe('ApplicationStepForm document evidence', () => {
     )
     expect(request).not.toHaveBeenCalled()
     expect(onContinue).not.toHaveBeenCalled()
+  })
+})
+
+describe('ApplicationStepForm pending label', () => {
+  it('shows "Saving…" on the button that started the save', async () => {
+    server.use(
+      http.patch(formUrl, async () => {
+        await delay(50)
+        return savedResponse()
+      }),
+    )
+    const { user, onContinue } = renderForm({
+      form: {
+        ...savedForm,
+        answers: {
+          name: 'Ada Lovelace',
+          dateOfBirth: '1815-12-10',
+          country: 'United Kingdom',
+          nationality: 'British',
+          email: 'ada@example.com',
+          phone: '0123',
+          consentConfirmed: true,
+        },
+      },
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+    expect(screen.getByRole('button', { name: 'Saving…' })).toHaveAttribute(
+      'type',
+      'submit',
+    )
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+    await vi.waitFor(() => expect(onContinue).toHaveBeenCalledTimes(1))
   })
 })

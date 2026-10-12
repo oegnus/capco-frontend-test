@@ -70,6 +70,8 @@ export function ApplicationStepForm({
     form.documentEvidencePresent,
   )
   const [uploading, setUploading] = useState(false)
+  // Which button started the running save, so only that one says "Saving…".
+  const [pendingAction, setPendingAction] = useState<'save' | 'continue'>()
   const fieldOrder: readonly StepFieldKey[] = [
     ...stepTextFields[step].map(({ key }) => key),
     step === 'personal-details' ? 'consentConfirmed' : 'documentEvidence',
@@ -103,9 +105,13 @@ export function ApplicationStepForm({
     save.reset()
     setShowSaved(false)
     showFieldErrors({})
+    setPendingAction(afterSave ? 'continue' : 'save')
     save.mutate(
       { step, answers: answersForStep(step, values), version },
-      { onSuccess: () => afterSave?.() },
+      {
+        onSuccess: () => afterSave?.(),
+        onSettled: () => setPendingAction(undefined),
+      },
     )
   }
 
@@ -238,14 +244,16 @@ export function ApplicationStepForm({
                   type="button"
                   variant="secondary"
                 >
-                  {save.isPending ? 'Saving…' : 'Save'}
+                  {pendingAction === 'save' ? 'Saving…' : 'Save'}
                 </Button>
                 <Button
                   isDisabled={uploading}
                   isPending={save.isPending}
                   type="submit"
                 >
-                  {copy.continueLabel}
+                  {pendingAction === 'continue'
+                    ? 'Saving…'
+                    : copy.continueLabel}
                 </Button>
               </Stack>
             </Stack>
