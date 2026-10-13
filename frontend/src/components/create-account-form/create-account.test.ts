@@ -4,7 +4,6 @@ import { JsonApiRequestError } from '../../api/json-api'
 
 import {
   meetsPasswordPolicy,
-  rateLimitMessage,
   toRegistrationErrors,
   validateRegistration,
 } from './create-account'
@@ -124,20 +123,5 @@ describe('registration API errors', () => {
     [new Error('boom'), { kind: 'unexpected' }],
   ])('maps %o to a form-level error', (error, formError) => {
     expect(toRegistrationErrors(error)).toEqual({ fieldErrors: {}, formError })
-  })
-
-  it('describes the rate-limit wait time', () => {
-    expect(rateLimitMessage(1)).toBe(
-      'Too many attempts. Try again in 1 second.',
-    )
-    expect(rateLimitMessage(45)).toBe(
-      'Too many attempts. Try again in 45 seconds.',
-    )
-    expect(rateLimitMessage(90)).toBe(
-      'Too many attempts. Try again in 2 minutes.',
-    )
-    expect(rateLimitMessage()).toBe(
-      'Too many attempts. Wait a moment, then try again.',
-    )
   })
 })

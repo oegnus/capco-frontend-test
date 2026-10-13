@@ -1,4 +1,6 @@
 import { JsonApiRequestError } from '../../api/json-api'
+import { validateEmail } from '../../lib/email'
+import { rateLimitMessage } from '../../lib/rate-limit'
 
 export interface RegistrationValues {
   email: string
@@ -19,7 +21,6 @@ export const passwordGuidance =
   'Use at least 6 characters, including an uppercase letter and a special character (anything other than a letter or number).'
 
 // Mirrors the backend rules in the API contract for POST /api/v1/applicant-accounts.
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const uppercasePattern = /\p{Lu}/u
 const specialCharacterPattern = /[^\p{L}\p{N}]/u
 
@@ -29,17 +30,6 @@ export function meetsPasswordPolicy(password: string): boolean {
     uppercasePattern.test(password) &&
     specialCharacterPattern.test(password)
   )
-}
-
-/** Validates an already trimmed email address against the API's rule. */
-export function validateEmail(email: string): string | undefined {
-  if (email === '') {
-    return 'Enter your email address.'
-  }
-  if (!emailPattern.test(email)) {
-    return 'Enter an email address in the format name@example.com.'
-  }
-  return undefined
 }
 
 export function validateRegistration(
@@ -107,18 +97,6 @@ export function toRegistrationErrors(error: unknown): {
   return Object.keys(fieldErrors).length > 0
     ? { fieldErrors }
     : { fieldErrors, formError: { kind: 'unexpected' } }
-}
-
-export function rateLimitMessage(retryAfterSeconds?: number): string {
-  if (retryAfterSeconds === undefined) {
-    return 'Too many attempts. Wait a moment, then try again.'
-  }
-  const minutes = Math.ceil(retryAfterSeconds / 60)
-  const wait =
-    retryAfterSeconds < 60
-      ? `${retryAfterSeconds} ${retryAfterSeconds === 1 ? 'second' : 'seconds'}`
-      : `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
-  return `Too many attempts. Try again in ${wait}.`
 }
 
 export function formErrorMessage(error: RegistrationFormError) {
