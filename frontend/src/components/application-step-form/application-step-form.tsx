@@ -53,6 +53,14 @@ const stepCopy = {
 
 const consentErrorId = 'consent-confirmed-error'
 
+/** Which button started a save; Continue also moves on once it succeeds. */
+type SaveIntent = 'save' | 'continue'
+
+interface SaveVariables {
+  update: ApplicationFormUpdate
+  intent: SaveIntent
+}
+
 export function ApplicationStepForm({
   applicationId,
   step,
@@ -70,8 +78,6 @@ export function ApplicationStepForm({
     form.documentEvidencePresent,
   )
   const [uploading, setUploading] = useState(false)
-  // Which button started the running save, so only that one says "Saving…".
-  const [pendingAction, setPendingAction] = useState<'save' | 'continue'>()
   const fieldOrder: readonly StepFieldKey[] = [
     ...stepTextFields[step].map(({ key }) => key),
     step === 'personal-details' ? 'consentConfirmed' : 'documentEvidence',
@@ -80,14 +86,17 @@ export function ApplicationStepForm({
     useFieldErrors(fieldOrder)
 
   const save = useMutation({
-    mutationFn: (update: ApplicationFormUpdate) =>
+    mutationFn: ({ update }: SaveVariables) =>
       saveApplicationForm(applicationId, update),
     // Attempt the request even when the browser reports it is offline, so a
     // network failure is reported instead of leaving the save pending.
     networkMode: 'always',
-    onSuccess: (saved) => {
+    onSuccess: (saved, { intent }) => {
       setVersion(saved.version)
       setShowSaved(true)
+      if (intent === 'continue') {
+        onContinue()
+      }
     },
     // Field errors also move focus, so they are applied once per failure.
     onError: (error) => {
@@ -96,8 +105,9 @@ export function ApplicationStepForm({
     },
   })
   const saveError = save.error ? toSaveError(save.error) : undefined
+  const pendingIntent = save.isPending ? save.variables.intent : undefined
 
-  function submitSave(afterSave?: () => void) {
+  function submitSave(intent: SaveIntent) {
     // Saving while an upload is running would race on the form version.
     if (save.isPending || uploading) {
       return
@@ -105,14 +115,10 @@ export function ApplicationStepForm({
     save.reset()
     setShowSaved(false)
     showFieldErrors({})
-    setPendingAction(afterSave ? 'continue' : 'save')
-    save.mutate(
-      { step, answers: answersForStep(step, values), version },
-      {
-        onSuccess: () => afterSave?.(),
-        onSettled: () => setPendingAction(undefined),
-      },
-    )
+    save.mutate({
+      update: { step, answers: answersForStep(step, values), version },
+      intent,
+    })
   }
 
   function change<Key extends keyof FormValues>(
@@ -158,7 +164,7 @@ export function ApplicationStepForm({
                 return
               }
               if (event.currentTarget.reportValidity()) {
-                submitSave(onContinue)
+                submitSave('continue')
               }
             }}
             spacing={2}
@@ -240,18 +246,18 @@ export function ApplicationStepForm({
                 <Button
                   isDisabled={uploading}
                   isPending={save.isPending}
-                  onPress={() => submitSave()}
+                  onPress={() => submitSave('save')}
                   type="button"
                   variant="secondary"
                 >
-                  {pendingAction === 'save' ? 'Saving…' : 'Save'}
+                  {pendingIntent === 'save' ? 'Saving…' : 'Save'}
                 </Button>
                 <Button
                   isDisabled={uploading}
                   isPending={save.isPending}
                   type="submit"
                 >
-                  {pendingAction === 'continue'
+                  {pendingIntent === 'continue'
                     ? 'Saving…'
                     : copy.continueLabel}
                 </Button>
