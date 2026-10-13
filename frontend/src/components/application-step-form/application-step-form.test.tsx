@@ -561,10 +561,10 @@ describe('ApplicationStepForm pending label', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
-    expect(screen.getByRole('button', { name: 'Saving…' })).toHaveAttribute(
-      'type',
-      'submit',
-    )
+    expect(screen.getByRole('button', { name: 'Saving…' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Continue' }),
+    ).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
     await vi.waitFor(() => expect(onContinue).toHaveBeenCalledTimes(1))
   })
